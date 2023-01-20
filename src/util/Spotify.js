@@ -29,9 +29,8 @@ const Spotify = {
 
     search(term) {
         const accessToken = Spotify.getAccessToken();
-        const endpoint = `http://api.spotify.com/v1/search?type=track&q=${term}`;
         
-        return fetch(endpoint, {
+        return fetch(`http://api.spotify.com/v1/search?type=track&q=${term}`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
@@ -50,6 +49,41 @@ const Spotify = {
             }));
         });
     },
+
+    savePlaylist(playlistName, arrayOfTrackURIs) {
+        if(!playlistName || !arrayOfTrackURIs.length) {
+            return;
+        }
+
+        const accessToken = Spotify.getAccessToken();
+        const headers = { Authorization: `Bearer ${accessToken}`};
+        let userID;
+        // Endpoint to get user's Spotify username:                     /v1/me
+        // Endpoint to create a new playlist in the user's account:     /v1/users/{user_id}/playlists
+        // Endpoint to add tracks to a playlist:                        /v1/users/{user_id}/playlists/{playlist_id}/tracks
+
+        return fetch('https://api.spotify.com/v1/me', { headers: headers }
+            ).then(response => response.json()
+        ).then(jsonResponse => {
+            userID = jsonResponse.id;
+
+            return fetch(`https://api.spotify.com/v1/users/${userID}/playlists`, 
+                {
+                    headers: headers,
+                    method: 'POST',
+                    body: JSON.stringify({ name: playlistName })
+                })
+        }).then(response => response.json()
+        ).then(jsonResponse => {
+            const playlistID = jsonResponse.id;
+            return fetch(`https://api.spotify.com/v1/users/${userID}/playlists/${playlistID}/tracks`,
+            {
+                headers: headers,
+                method: 'POST',
+                body: JSON.stringify({ uris: arrayOfTrackURIs })
+            });
+        });
+    }
 };
 
 export default Spotify;
