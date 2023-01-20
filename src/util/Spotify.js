@@ -50,8 +50,8 @@ const Spotify = {
         });
     },
 
-    savePlaylist(playlistName, arrayOfTrackURIs) {
-        if(!playlistName || !arrayOfTrackURIs.length) {
+    savePlaylist(playlistName, trackURIs) {
+        if(!playlistName || !trackURIs.length) {
             return;
         }
 
@@ -80,7 +80,7 @@ const Spotify = {
             {
                 headers: headers,
                 method: 'POST',
-                body: JSON.stringify({ uris: arrayOfTrackURIs })
+                body: JSON.stringify({ uris: trackURIs })
             });
         });
     }
